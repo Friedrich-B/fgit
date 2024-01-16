@@ -11,3 +11,5 @@ Using ```fgit new``` you can create a new branch. You will be asked for the type
 Using ```fgit commit``` you can enter a commit message for your current branch. If the branch was created using fgit and a ticket number was provided, then the ticket number will be used as the prefix for your commit message.
 ## delete branches
 Using ```fgit delete``` you can get a listing of all branches except for master and develop. You can choose as many branches as you want to delete.
+## checkout branch
+Use ```fgit delete``` to show all branches from ```git branch``` except for your current branch.
