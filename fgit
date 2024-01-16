@@ -163,10 +163,28 @@ delete_branch() {
   fi
 }
 
+checkout_branch() {
+  # remove current branch from selection
+  current_branch=$(git rev-parse --abbrev-ref HEAD)
+  branches=$(git branch | sed "\|$current_branch|d")
+
+  message=$(style_message "choose a branch to checkout:")
+
+  branch_to_checkout=$(gum choose \
+    --header="$message" \
+    --cursor.foreground=$COLOR_GREEN \
+    $branches
+  )
+
+  git checkout $branch_to_checkout
+}
+
 if [[ $1 == "new" ]]; then
   create_branch
 elif [[ $1 == "commit" ]]; then
   commit_changes
 elif [[ $1 == "delete" ]]; then
   delete_branch
+elif [[ $1 == "checkout" ]]; then
+  checkout_branch
 fi
