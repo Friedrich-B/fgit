@@ -179,12 +179,26 @@ checkout_branch() {
   git checkout $branch_to_checkout
 }
 
-if [[ $1 == "new" ]]; then
-  create_branch
-elif [[ $1 == "commit" ]]; then
-  commit_changes
-elif [[ $1 == "delete" ]]; then
-  delete_branch
-elif [[ $1 == "checkout" ]]; then
-  checkout_branch
-fi
+help() {
+  style_message "no options provided, options are 'new', 'commit', 'delete', 'checkout'"
+}
+
+
+case $1 in
+  "new")
+    create_branch
+    ;;
+  "commit")
+    commit_changes
+    ;;
+  "delete")
+    delete_branch
+    ;;
+  "checkout")
+    checkout_branch
+    ;;
+  *)
+    help
+    ;;
+esac
+  
