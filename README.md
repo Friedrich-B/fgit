@@ -12,4 +12,4 @@ Using ```fgit commit``` you can enter a commit message for your current branch. 
 ## delete branches
 Using ```fgit delete``` you can get a listing of all branches except for master and develop. You can choose as many branches as you want to delete.
 ## checkout branch
-Use ```fgit delete``` to show all branches from ```git branch``` except for your current branch.
+Use ```fgit checkout``` to show all branches from ```git branch``` except for your current branch.
