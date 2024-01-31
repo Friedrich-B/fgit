@@ -1,5 +1,5 @@
 # fgit
-A tool to make your git process a little more fancy.
+A tool to make your git process a little more fancy. There might be hundreds of these tools out there, I don't know. I just wanted to write it on my own.
 # prerequisites
 You need to install ```gum```. Otherwise this script will not work.
 ```brew install gum```
