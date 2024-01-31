@@ -79,25 +79,53 @@ create_branch() {
   fi
 }
 
+exit_commit() {
+  style_message "$(style_alert "commit aborted")"
+  exit 1
+}
+
 commit_changes() {
+  keep_message=""
+  commit_message=""
+  commit_message_message=$(style_message "commit message:")
+
   # get current branch name and get ticket number for branch
   current_branch_name=$(git rev-parse --abbrev-ref HEAD)
   file_content=$(grep -i "$current_branch_name" "$CONFIG_FILE")
   ticket_nr=$(echo "$file_content" | cut -d '|' -f 2)
 
-  commit_message_message=$(style_message "commit message:")
-  commit_message=$(gum input --header="$commit_message_message")
+  while [ "$keep_message" != "$ACCEPT" ] && [ "$keep_message" != "$DECLINE" ]
+  do
+    commit_message=$(gum input \
+      --header="$commit_message_message" \
+      --value="$commit_message"
+    )
 
-  if [[ -n $ticket_nr ]]; then
-    commit_message="$ticket_nr: $commit_message"
-  fi
+    # make sure the script can be exited by pressing control + c
+    if [ $? -ne 0 ]; then
+      exit_commit
+    fi
 
-  keep_message=$(confirm "Keep message: '$(style_important "$commit_message")'?")
+    if [[ -n $ticket_nr ]]; then
+      commit_message="$ticket_nr: $commit_message"
+    fi
+
+    keep_message=$(gum choose \
+      --header="$(style_message "Keep message: '$(style_important "$commit_message")'?")" \
+      --cursor.foreground=$COLOR_GREEN \
+      $ACCEPT "edit" $DECLINE
+    )
+
+    # make sure the script can be exited by pressing control + c
+    if [ $? -ne 0 ]; then
+      exit_commit
+    fi
+  done
 
   if [[ $keep_message == "$ACCEPT" ]]; then
     git commit -m "$commit_message"
   else
-    style_message "$(style_alert "commit aborted")"
+    exit_commit
   fi
 }
 
@@ -183,7 +211,6 @@ help() {
   style_message "no options provided, options are 'new', 'commit', 'delete', 'checkout'"
 }
 
-
 case $1 in
   "new")
     create_branch
@@ -201,4 +228,3 @@ case $1 in
     help
     ;;
 esac
-  
