@@ -9,7 +9,10 @@ COLOR_GREEN="#ffff8f"
 COLOR_PINK="#ff69b4"
 COLOR_WHITE="#ffffff"
 
+# create file where branch names and prefixes are stored if not already existing
 touch "$CONFIG_FILE"
+
+# @TODO: fgit input functions with exit by ctrl+c pre equipped using gum as base
 
 style_message() {
   gum style \
@@ -40,6 +43,11 @@ confirm () {
     $ACCEPT $DECLINE
 }
 
+exit_create_branch () {
+  style_message "$(style_alert "branch creation aborted")"
+  exit 1
+}
+
 create_branch() {
   prefix_message=$(style_message "branch prefix:")
   ticket_nr_message=$(style_message "ticket number: (leave empty if no ticket)")
@@ -47,17 +55,32 @@ create_branch() {
 
   prefix=$(gum choose \
     --header="$prefix_message" \
-    --cursor="-> " \
+    --cursor="> " \
     --cursor.foreground=$COLOR_GREEN \
     "feature" "fix" "hotfix" "none"
   )
 
+  # make sure the script can be exited by pressing control + c
+  if [[ $? -ne 0 ]]; then
+    exit_create_branch
+  fi
+
   ticket_nr=$(gum input --header="$ticket_nr_message" --placeholder="ABCD-1234")
+
+  # make sure the script can be exited by pressing control + c
+  if [[ $? -ne 0 ]]; then
+    exit_create_branch
+  fi
+
   name=$(gum input --header="$name_message" --placeholder="what-ever-you-want")
 
+  # make sure the script can be exited by pressing control + c
+  if [[ $? -ne 0 ]]; then
+    exit_create_branch
+  fi
+
   if [[ -z $name ]]; then
-    style_message "$(style_alert "branch creation aborted - no branch name provided")"
-    exit 1
+    exit_create_branch
   fi
 
   if [[ -n $ticket_nr ]]; then
@@ -75,7 +98,7 @@ create_branch() {
     echo "$name|$ticket_nr" >> "$CONFIG_FILE"
     git checkout -b "$name"
   else
-    style_message "$(style_alert "branch creation aborted")"
+    exit_create_branch
   fi
 }
 
@@ -102,7 +125,7 @@ commit_changes() {
     )
 
     # make sure the script can be exited by pressing control + c
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
       exit_commit
     fi
 
@@ -117,7 +140,7 @@ commit_changes() {
     )
 
     # make sure the script can be exited by pressing control + c
-    if [ $? -ne 0 ]; then
+    if [[ $? -ne 0 ]]; then
       exit_commit
     fi
   done
@@ -178,8 +201,7 @@ delete_branch() {
 
     for single_branch in $split_branches
     do
-      grep_content=$(cat "$CONFIG_FILE" | grep "$single_branch")
-
+      # an alternative to "$OSTYPE" would be "$(uname)"
       if [[ "$OSTYPE" == "linux-gnu" ]]; then
         # use GNU sed on linux
         sed -i "\|$single_branch|d" $CONFIG_FILE
