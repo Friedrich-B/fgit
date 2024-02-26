@@ -1,8 +1,12 @@
 # fgit
 A tool to make your git process a little more fancy. There might be hundreds of these tools out there, I don't know. I just wanted to write it on my own.
-# prerequisites
+# installation
+## prerequisits
 You need to install ```gum```. Otherwise this script will not work.
 ```brew install gum```
+## installation
+Either put the fgit file in your bin folder or put it anywhere and make a shell alias and run the script using bash.
+If you are on windows using wsl, have fun figuring out how to get it to work. If you are working on windows it's your own fault.
 # features
 This tool currently has the following features:
 ## create branches
