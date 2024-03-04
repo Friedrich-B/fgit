@@ -5,8 +5,7 @@ A tool to make your git process a little more fancy. There might be hundreds of 
 You need to install ```gum```. Otherwise this script will not work.
 ```brew install gum```
 - installation:
-Either put the fgit file in your bin folder or put it anywhere and make a shell alias and run the script using bash.
-If you are on windows using wsl, have fun figuring out how to get it to work. If you are working on windows it's your own fault.
+It's a bash script so it is no big deal to get it running. Put it anywhere, add it to the path or execute it using an alias, it's up to you. As long as you are not working with wsl everything will work perfectly fine. If anyone can get it working with wsl then tell me.
 # features
 This tool currently has the following features:
 ## create branches
