@@ -12,8 +12,6 @@ COLOR_WHITE="#ffffff"
 # create file where branch names and prefixes are stored if not already existing
 touch "$CONFIG_FILE"
 
-# @TODO: fgit input functions with exit by ctrl+c pre equipped using gum as base
-
 style_message() {
   gum style \
     --border="rounded" \
@@ -49,6 +47,10 @@ exit_create_branch () {
 }
 
 create_branch() {
+  name=""
+  ticket_nr=""
+  keep_name=""
+
   prefix_message=$(style_message "branch prefix:")
   ticket_nr_message=$(style_message "ticket number: (leave empty if no ticket)")
   name_message=$(style_message "branch name:")
@@ -65,41 +67,60 @@ create_branch() {
     exit_create_branch
   fi
 
-  ticket_nr=$(gum input --header="$ticket_nr_message" --placeholder="ABCD-1234")
+  # allow editing the branch name by looping until the script terminates
+  while [ "$keep_name" != "$ACCEPT" ]
+  do
+    ticket_nr=$(gum input \
+      --header="$ticket_nr_message" \
+      --placeholder="ABCD-1234" \
+      --value="$ticket_nr"
+    )
 
-  # make sure the script can be exited by pressing control + c
-  if [[ $? -ne 0 ]]; then
-    exit_create_branch
-  fi
+    # make sure the script can be exited by pressing control + c
+    if [[ $? -ne 0 ]]; then
+      exit_create_branch
+    fi
 
-  name=$(gum input --header="$name_message" --placeholder="what-ever-you-want")
+    name=$(gum input \
+      --header="$name_message" \
+      --placeholder="what-ever-you-want" \
+      --value="$name"
+    )
 
-  # make sure the script can be exited by pressing control + c
-  if [[ $? -ne 0 ]]; then
-    exit_create_branch
-  fi
+    # make sure the script can be exited by pressing control + c
+    if [[ $? -ne 0 ]] || [[ -z $name ]]; then
+      exit_create_branch
+    fi
 
-  if [[ -z $name ]]; then
-    exit_create_branch
-  fi
+    final_name="$name"
 
-  if [[ -n $ticket_nr ]]; then
-    name="$ticket_nr-$name"
-  fi
+    if [[ -n $ticket_nr ]]; then
+      final_name="$ticket_nr-$name"
+    fi
 
-  if [[ $prefix != "none" ]]; then
-    name="$prefix/$name"
-  fi
+    if [[ $prefix != "none" ]]; then
+      final_name="$prefix/$final_name"
+    fi
 
-  keep_name=$(confirm "Keep branch: $(style_important "$name")?")
+    keep_name=$(gum choose \
+      --header="$(style_message "Keep branch: '$(style_important "$final_name")'?")" \
+      --cursor.foreground=$COLOR_GREEN \
+      $ACCEPT "edit" $DECLINE
+    )
 
-  if [[ $keep_name == "$ACCEPT" ]]; then
-    # write branch name and ticket number to config file
-    echo "$name|$ticket_nr" >> "$CONFIG_FILE"
-    git checkout -b "$name"
-  else
-    exit_create_branch
-  fi
+    # make sure the script can be exited by pressing control + c
+    if [[ $? -ne 0 ]] || [[ -z $name ]]; then
+      exit_create_branch
+    fi
+
+    if [[ $keep_name == "$ACCEPT" ]]; then
+      # write branch name and ticket number to config file
+      echo "$final_name|$ticket_nr" >> "$CONFIG_FILE"
+      git checkout -b "$final_name"
+    elif [[ $keep_name == "$DECLINE" ]]; then
+      exit_create_branch
+    fi
+  done
 }
 
 exit_commit() {
@@ -107,7 +128,7 @@ exit_commit() {
   exit 1
 }
 
-commit_changes() {
+commit_changes()    {
   keep_message=""
   commit_message=""
   commit_message_message=$(style_message "commit message:")
