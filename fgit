@@ -59,7 +59,7 @@ create_branch() {
     --header="$prefix_message" \
     --cursor="> " \
     --cursor.foreground=$COLOR_GREEN \
-    "feature" "fix" "hotfix" "none"
+    "feature" "bugfix" "hotfix" "none"
   )
 
   # make sure the script can be exited by pressing control + c
@@ -128,7 +128,7 @@ exit_commit() {
   exit 1
 }
 
-commit_changes()    {
+commit_changes() {
   keep_message=""
   commit_message=""
   commit_message_message=$(style_message "commit message:")
@@ -150,7 +150,8 @@ commit_changes()    {
       exit_commit
     fi
 
-    if [[ -n $ticket_nr ]]; then
+    # prevent from adding the prefix multiple times
+    if [[ -n $ticket_nr ]] && [[ ! "$commit_message" == "$ticket_nr"* ]]; then
       commit_message="$ticket_nr: $commit_message"
     fi
 
