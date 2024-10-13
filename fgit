@@ -1,6 +1,9 @@
 #!/bin/bash
 # dependencies to run this script: gum
 
+# @TODO: develop branch immer nach oben sortieren beim checkout
+# @TODO: (optional) bei gfc soll config für fgit geschrieben werden (erstmal den gfc code hier pasten)
+
 CONFIG=".fgitconfig"
 CONFIG_FILE="$HOME/$CONFIG"
 ACCEPT="yes"
@@ -59,7 +62,7 @@ create_branch() {
     --header="$prefix_message" \
     --cursor="> " \
     --cursor.foreground=$COLOR_GREEN \
-    "feature" "bugfix" "hotfix" "none"
+    "feature" "fix" "hotfix" "none"
   )
 
   # make sure the script can be exited by pressing control + c
@@ -200,9 +203,9 @@ delete_branch() {
   branches_to_delete=$(gum choose \
     --header="$deletion_message" \
     --cursor.foreground=$COLOR_GREEN \
-    --cursor-prefix="[ ] " \
-    --selected-prefix="[✓] " \
-    --unselected-prefix="[ ] " \
+    --cursor-prefix="○ " \
+    --selected-prefix="◉ " \
+    --unselected-prefix="○ " \
     --no-limit \
     $existing_branches
   )
@@ -251,9 +254,9 @@ checkout_branch() {
   git checkout $branch_to_checkout
 }
 
-help() {
-  style_message "no options provided, options are 'new', 'commit', 'delete', 'checkout'"
-}
+  help() {
+    style_message "no options provided, options are 'new', 'commit', 'delete', 'checkout'"
+  }
 
 case $1 in
   "new")
